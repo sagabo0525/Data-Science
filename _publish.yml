@@ -1,0 +1,4 @@
+- source: study_report.qmd
+  quarto-pub:
+    - id: de19ea5e-54a2-4beb-85a2-ffe1f16d200f
+      url: https://sagabo.quarto.pub/plsa-and-review-mining-f06c

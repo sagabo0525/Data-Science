@@ -1,0 +1,154 @@
+---
+title: "Weekly Learning Report: MCDM & Similarity Measures"
+author: "Uhjin Kim"
+date: "2026-01-15"
+categories: [Data Science, MCDM, Mathematics]
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+mainfont: "Arial"
+editor:
+  markdown:
+    wrap: sentence
+---
+
+## 1. Overview
+
+This report explores the mathematical foundations of MCDM and Similarity Measures, focusing on their **application in quantative decision-making and high-dimensional data analysis.**
+
+------------------------------------------------------------------------
+
+## 2. Multi-Criteria Decision Making (MCDM)
+
+### 2.1 AHP (Analytic Hierarchy Process)
+
+AHP decomposes a problem into a **Hierarchical Structure** and uses pairwise comparisons to derive priorities.
+
+-   **Step 1: Construct Pairwise Comparison Matrix (**$A$) For $n$ criteria, construct a matrix where $a_{ij}$ represents the relative importance of element $i$ over element $j$.
+    $$A = \begin{bmatrix} 1 & a_{12} & \cdots & a_{1n} \\ 1/a_{12} & 1 & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ 1/a_{1n} & 1/a_{2n} & \cdots & 1 \end{bmatrix}$$ *(Property:* $a_{ji} = 1/a_{ij}, \quad a_{ii} = 1$)
+
+-   **Step 2: Calculate Priority Vector (**$w$) Mathematically, this involves solving the eigenvalue problem: $$A \cdot w = \lambda_{max} \cdot w$$ *In practice (Synthesization method):*
+
+    1.  **Normalize** each column of $A$: $\bar{a}_{ij} = \frac{a_{ij}}{\sum_{k=1}^{n} a_{kj}}$
+    2.  **Average** the rows to find weights: $w_i = \frac{\sum_{j=1}^{n} \bar{a}_{ij}}{n}$
+
+-   **Step 3: Consistency Verification** To ensure the decision maker's logic is consistent:
+
+    1.  Calculate **Consistency Index (CI)**: $CI = \frac{\lambda_{max} - n}{n - 1}$
+    2.  Calculate **Consistency Ratio (CR)**: $CR = \frac{CI}{RI}$ *(Where* $RI$ is the Random Index based on matrix size $n$. If $CR < 0.1$, consistency is acceptable.)
+
+::: {.callout-tip title="Insight: Handling Subjectivity"}
+The core strength of AHP lies in the **Consistency Ratio (CR)**.
+Unlike simple weighted scoring, AHP mathematically quantifies 'how inconsistent the decision maker is.' If $CR > 0.1$, it forces the decision maker to re-evaluate their logic, ensuring rational consistency in subjective judgments.
+:::
+
+### 2.2 ANP (Analytic Network Process)
+
+ANP generalizes AHP by overcoming the assumption of independence among criteria, handling interdependence using a supermatrix approach.
+
+-   **Step 1: Construct Unweighted Supermatrix** Perform pairwise comparisons (like AHP) for all interacting clusters and nodes.
+    Place the resulting local priority vectors into a block matrix.
+    $$W_{unweighted} = \begin{bmatrix} W_{11} & W_{12} \\ W_{21} & W_{22} \end{bmatrix}$$
+
+-   **Step 2: Construct Weighted Supermatrix** Since the unweighted matrix is not column-stochastic (columns sum \> 1), multiply each block by the priority of its corresponding cluster so that each column sums to 1.
+    $$W_{weighted} = W_{unweighted} \times W_{cluster}$$
+
+-   **Step 3: Calculate Limiting Supermatrix** Raise the weighted supermatrix to a large power $k$ to capture all indirect influences until the values stabilize (converge).
+    $$\lim_{k \to \infty} W^k$$ *The resulting rows represent the final global priorities of the elements.*
+
+::: {.callout-note title="Why ANP matters in Engineering?"}
+Real-world industrial systems are rarely linear hierarchies.
+For instance, **Product Quality** affects **Sales**, but increased **Sales** might lower **Quality** due to production pressure (Feedback Loop).
+ANP captures this **interdependence** via the Supermatrix, making it superior for complex system modeling.
+:::
+
+### 2.3 DEMATEL
+
+DEMATEL is specialized for visualizing the **Cause & Effect** structure of complex factors.
+
+-   **Step 1: Direct Relation Matrix (**$A$) Create an $n \times n$ matrix based on expert evaluation (scale 0\~4), where $a_{ij}$ is the direct influence of $i$ on $j$.
+
+-   **Step 2: Normalization (**$X$) Normalize the matrix so that values fall between 0 and 1.
+    $$k = \frac{1}{\max_{1 \le i \le n} \sum_{j=1}^{n} a_{ij}}$$ $$X = k \cdot A$$
+
+-   **Step 3: Total Relation Matrix (**$T$) Calculate the sum of direct and all indirect effects using the geometric series formula (where $I$ is the identity matrix): $$T = X + X^2 + X^3 + \dots = X(I - X)^{-1}$$
+
+-   **Step 4: Causal Parameters**
+
+    -   **Prominence (**$D+R$): $D_i$ (Row sum) + $R_i$ (Col sum). Represents total importance.
+    -   **Relation (**$D-R$): If positive, factor $i$ is a **Cause**; if negative, it is an **Effect**.
+
+### 2.4 TOPSIS
+
+TOPSIS ranks alternatives based on their geometric distance to ideal solutions.
+
+::: callout-note
+## Key Concept
+
+-   **PIS (Positive Ideal Solution,** $A^*$): The hypothetical solution that maximizes benefit and minimizes cost.
+-   **NIS (Negative Ideal Solution,** $A^-$): The hypothetical solution that minimizes benefit and maximizes cost.
+:::
+
+-   **Step 1: Vector Normalization** Normalize the decision matrix ($x_{ij}$) to eliminate unit differences.
+    $$r_{ij} = \frac{x_{ij}}{\sqrt{\sum_{k=1}^{m} x_{kj}^2}}$$
+
+-   **Step 2: Weighted Normalized Matrix (**$v$) Multiply by the weights ($w_j$) of each criterion.
+    $$v_{ij} = w_j \cdot r_{ij}$$
+
+-   **Step 3: Determine Ideal Solutions**
+
+    -   **PIS (**$A^*$): Max value for benefits ($J+$), Min value for costs ($J-$). $$A^* = \{ (\max_i v_{ij} | j \in J+), (\min_i v_{ij} | j \in J-) \}$$
+    -   **NIS (**$A^-$): Min value for benefits ($J+$), Max value for costs ($J-$). $$A^- = \{ (\min_i v_{ij} | j \in J+), (\max_i v_{ij} | j \in J-) \}$$
+
+-   **Step 4: Calculate Distances & Closeness**
+
+    -   Separation from PIS: $S_i^* = \sqrt{\sum_{j=1}^{n} (v_{ij} - v_j^*)^2}$
+    -   Separation from NIS: $S_i^- = \sqrt{\sum_{j=1}^{n} (v_{ij} - v_j^-)^2}$
+    -   **Relative Closeness (**$C_i^*$): $$C_i^* = \frac{S_i^-}{S_i^* + S_i^-}$$ *(Rank alternatives by* $C_i^*$ in descending order.)
+
+------------------------------------------------------------------------
+
+## 3. Measurement Metrics
+
+These measures provide the mathematical foundation for quantifying relationships between data objects.
+
+### 3.1 Similarity Measures
+
+-   **Cosine Similarity**: Measures the cosine of the angle between two non-zero vectors.
+    It focuses on orientation rather than magnitude.
+    $$\text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \|B\|} = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \sqrt{\sum_{i=1}^{n} B_i^2}}$$ *(Range: 0 to 1 for positive vector spaces)*
+
+-   **Jaccard Index**: Measures similarity between finite sample sets.
+    $$J(A, B) = \frac{|A \cap B|}{|A \cup B|}$$
+
+### 3.2 Distance Measures
+
+-   **Euclidean Distance**: The straight-line distance between two points in Euclidean space ($L_2$ norm).
+    $$D(A, B) = \sqrt{\sum_{i=1}^{n} (A_i - B_i)^2}$$
+
+-   **Manhattan Distance**: The distance between two points measured along axes at right angles ($L_1$ norm).
+    $$MD(P, Q) = \sum_{i=1}^{n} |p_i - q_i|$$
+
+-   **Hellinger Distance**: Used to quantify the similarity between two probability distributions.
+    $$H(P, Q) = \frac{1}{\sqrt{2}} \sqrt{\sum_{i=1}^{n} (\sqrt{p_i} - \sqrt{q_i})^2}$$
+
+::: {.callout-warning title="The Curse of Dimensionality"}
+In high-dimensional spaces (e.g., text data with 10,000+ features), the relative difference between the nearest and farthest data points becomes negligible.
+Thus, **Euclidean Distance** often loses its discriminatory power.
+In such sparse environments, **Cosine Similarity** is generally preferred as it focuses on the "direction" rather than the magnitude.
+:::
+
+### 3.3 Node Centrality (Network Analysis)
+
+Measures the importance of nodes within a graph.
+
+| Measure | Definition |
+|:-----------------------------------|:-----------------------------------|
+| **Degree Centrality** | The number of direct links connected to a node. |
+| **Closeness Centrality** | The reciprocal of the sum of the shortest path distances from a node to all other nodes. <br> $C_c(x) = \frac{1}{\sum_y d(y, x)}$ |
+| **Betweenness Centrality** | The extent to which a node lies on the shortest paths between other nodes. |
+| **Eigenvector Centrality** | A measure of influence where connections to high-scoring nodes contribute more to the score. |
