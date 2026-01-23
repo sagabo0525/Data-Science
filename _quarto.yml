@@ -1,0 +1,26 @@
+project:
+  type: website
+
+website:
+  title: "Uhjin's Lab"
+  description: "산업공학 & 데이터 사이언스 연구 기록"
+  # 상단 메뉴바 설정
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/sagabo0525/Data-Science
+
+format:
+  html:
+    theme: cosmo          # 깔끔한 블로그 테마
+    toc: true             # 우측 목차 표시
+    number-sections: true # 섹션 번호 자동 부여
+    code-fold: true       # 코드 접기 기능 활성화
+
+# 렌더링 시 파이썬 엔진 경로 (이미지에서 확인된 경로)
+jupyter: "C:/Users/evang/anaconda3/python.exe"
