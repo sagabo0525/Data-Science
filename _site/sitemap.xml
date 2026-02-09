@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://sagabo0525.github.io/Data-Science/reports/20260206_study_report.html</loc>
+    <lastmod>2026-02-09T06:56:10.707Z</lastmod>
+  </url>
+  <url>
     <loc>https://sagabo0525.github.io/Data-Science/reports/20260115_study_report.html</loc>
     <lastmod>2026-01-23T02:04:40.115Z</lastmod>
   </url>
@@ -11,5 +15,9 @@
   <url>
     <loc>https://sagabo0525.github.io/Data-Science/reports/20260102_study_report.html</loc>
     <lastmod>2026-01-22T07:50:38.223Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sagabo0525.github.io/Data-Science/reports/20260122_study_report.html</loc>
+    <lastmod>2026-02-09T06:37:22.381Z</lastmod>
   </url>
 </urlset>

@@ -1,0 +1,149 @@
+---
+title: "Weekly Learning Report: Probabilistic Classifiers & Optimization"
+subtitle: "From Linear Boundaries to Probabilistic Inference"
+author: "Uhjin Kim"
+date: "2026-02-06"
+categories: [Machine Learning]
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    mainfont: "Arial"
+editor: visual
+---
+
+## 1. Overview
+
+The core focus of this week's learning is understanding the mathematical foundations of **Probabilistic Classification**. Moving beyond simply drawing lines in space to separate data (Geometric Approach), we cover two approaches to modeling the probability that data belongs to a specific class:
+
+-   **Discriminative Model (Logistic Regression):** Directly models the probability $P(Y|X)$ of class $Y$ given input $X$. The key process is mapping the result of a linear combination to a probability range.
+-   **Generative Model (Naive Bayes):** Models the distribution of data per class $P(X|Y)$ and the prior probability $P(Y)$, then infers the class inversely using Bayes' Theorem.
+
+This report integrates the derivation of Logistic Regression based on Odds, Maximum Likelihood Estimation (MLE) for training, and the mathematical proofs and intuition behind the independence assumption in Naive Bayes.
+
+------------------------------------------------------------------------
+
+## 2. Logistic Regression: The Discriminative Approach
+
+Logistic Regression is a regression model designed to predict the probability of an event occurrence when the dependent variable is Categorical.
+
+### 2.1 The Limits of Linear Regression (Range Mismatch)
+
+Suppose we predict an event using a matrix of vectors $X$ and a weight vector $\vec{\beta}$. The standard linear regression formula (Linear Combination) is:
+
+$$z = \vec{\beta}^T \vec{x} = \beta_0 + \beta_1 x_1 + \cdots + \beta_n x_n$$
+
+Here, a fatal **Range Mismatch** occurs:
+
+-   **LHS (Probability):** The probability we want to know, $P(Y=1|X=\vec{x})$, has a range of $[0, 1]$.
+-   **RHS (Linear Eq):** The result of $\vec{\beta}^T \vec{x}$ has a range of $(-\infty, \infty)$.
+
+Therefore, a linear equation cannot be used directly as a probability; we need a mediator to bridge this gap.
+
+### 2.2 Derivation from Odds (From Odds to Logit)
+
+To resolve this mismatch, we introduce the concept of **Odds** and derive the model in steps.
+
+**Step 1: Odds** Convert probability $P$ into the "ratio of success probability to failure probability." As probability increases from $0$ to $1$, Odds expand from $0$ to $\infty$. $$\text{Odds} = \frac{P(Y=1|X=\vec{x})}{1 - P(Y=1|X=\vec{x})} \in [0, \infty)$$
+
+**Step 2: Logit (Log-Odds)** By taking the natural logarithm of Odds, the range expands to $(-\infty, \infty)$, matching the range of the linear equation $\vec{\beta}^T \vec{x}$. This is called the **Logit Transform**. $$\log(\text{Odds}) = \log\left(\frac{P}{1 - P}\right) = \vec{\beta}^T \vec{x}$$
+
+**Step 3: Sigmoid Function (Solving for Probability)** Rearranging the equation above for $P$, we obtain the activation function (Sigmoid) that converts the linear combination result $z$ into a probability.
+
+$$\frac{P}{1-P} = e^{\vec{\beta}^T \vec{x}} \implies P(1 + e^{\vec{\beta}^T \vec{x}}) = e^{\vec{\beta}^T \vec{x}}$$
+
+$$\therefore P(Y=1|X=\vec{x}) = \frac{e^{\vec{\beta}^T \vec{x}}}{1 + e^{\vec{\beta}^T \vec{x}}} = \frac{1}{1 + e^{-\vec{\beta}^T \vec{x}}}$$
+
+\[Image of sigmoid function curve\]
+
+::: callout-note
+**Insight:** Logistic regression never abandoned linearity. It combines the simplicity of linear models with the flexibility of probabilistic models through the assumption that **"the Log-Odds of the probability are linear."**
+:::
+
+### 2.3 Multinomial Logistic Regression (Multi-class Extension)
+
+When the result is one of $K$ classes, we must extend binary classification. The core idea is **"Setting the last class** $K$ as the Pivot."
+
+For each class $k=1, \dots, K-1$, we model the log-odds relative to the pivot class $K$ linearly.
+
+$$\ln \left( \frac{P(Y=k)}{P(Y=K)} \right) = \beta_k \cdot X_i \implies P(Y=k) = P(Y=K) \cdot e^{\beta_k \cdot X_i}$$
+
+Using the constraint that the sum of all probabilities must be 1 ($\sum_{j=1}^K P(Y=j) = 1$), we can find the denominator (Normalization term).
+
+$$P(Y=K) + \sum_{k=1}^{K-1} P(Y=K)e^{\beta_k \cdot X_i} = 1$$
+
+Rearranging this, the probability of the pivot class $K$ is: $$P(Y_i = K) = \frac{1}{1 + \sum_{k=1}^{K-1} e^{\beta_k \cdot X_i}}$$
+
+The probability for the remaining classes $k$ is (Softmax form): $$P(Y_i = k) = \frac{e^{\beta_k \cdot X_i}}{1 + \sum_{j=1}^{K-1} e^{\beta_j \cdot X_i}}$$
+
+------------------------------------------------------------------------
+
+## 3. Optimization: MLE & Loss Function
+
+Now that the model form ($P(x)$) is defined, we must find the optimal parameters $\theta$ (i.e., $\vec{\beta}$). We examine how **Maximum Likelihood Estimation (MLE)** connects to the **Loss Function**.
+
+### 3.1 Likelihood Function
+
+Given observed data $x = (x_1, \dots, x_n)$, the Likelihood is the joint probability of observing this data viewed as a function of the parameter $\theta$. Assuming independent and identically distributed (i.i.d) data, it is expressed as a product.
+
+$$L(\theta|x) = P(x|\theta) = \prod_{k=1}^{n} P(x_k|\theta)$$
+
+### 3.2 Log-Likelihood
+
+As data increases, the product of probabilities tends to zero (Underflow) and is complex to differentiate. Therefore, we take the logarithm to convert the product into a sum. Since the log function is monotonically increasing, the location of the maximum does not change.
+
+$$\mathcal{L}(\theta|x) = \log P(x|\theta) = \sum_{k=1}^{n} \log P(x_k|\theta)$$
+
+To find the optimal solution, we find the point where the partial derivative is 0.
+
+$$\frac{\partial}{\partial \theta} \mathcal{L}(\theta|x) = \sum_{k=1}^{n} \frac{\partial}{\partial \theta} \log P(x_k|\theta) = 0$$
+
+### 3.3 From MLE to Loss Function (Equivalence of Minimizing Loss and MLE)
+
+In machine learning, we typically solve "Loss Minimization" problems rather than "Maximization" problems. Consider a binary classification (Bernoulli distribution) scenario. With actual value $y \in \{0, 1\}$ and predicted value $p$, the likelihood function is:
+
+$$P(y|x) = p^y (1-p)^{1-y}$$
+
+Taking the negative logarithm ($-\log$) of this yields the familiar **Binary Cross-Entropy Loss**.
+
+$$\text{NLL} = -\log(L) = -\sum_{i=1}^n \left( y_i \log p_i + (1 - y_i) \log(1 - p_i) \right)$$
+
+Viewed as a loss function for an individual data point: $$\text{loss} = \begin{cases} -\log p & \text{if } y = 1 \\ -\log(1 - p) & \text{if } y = 0 \end{cases}$$
+
+::: {.callout-tip title="Conclusion"}
+**"Maximizing Likelihood"** is mathematically identical to **"Minimizing the information difference (Cross-Entropy) between the data and the model."**
+:::
+
+------------------------------------------------------------------------
+
+## 4. Naive Bayes Classifier: The Generative Approach
+
+Naive Bayes views input data as a vector $\mathbf{x} = (x_1, x_2, \dots, x_n)$ and selects the class $C_k$ with the highest probability using Bayes' Theorem.
+
+### 4.1 Bayes Theorem & Decision Rule
+
+We want to find the Posterior probability $P(C_k|\mathbf{x})$.
+
+$$P(C_k|\mathbf{x}) = \frac{P(C_k)P(\mathbf{x}|C_k)}{P(\mathbf{x})} = \frac{\text{Prior} \times \text{Likelihood}}{\text{Evidence}}$$
+
+Here, the denominator, Evidence $P(\mathbf{x})$, is a constant regardless of which class is selected, so it can be ignored (it does not affect the comparison of conditional probabilities).
+
+$$\hat{y} = \underset{k}{\text{argmax}} \left( P(C_k) P(\mathbf{x}|C_k) \right)$$
+
+### 4.2 The "Naive" Independence Assumption
+
+The problem lies in computing the likelihood $P(\mathbf{x}|C_k)$. As features increase, estimating the joint probability distribution becomes nearly impossible. Here, we introduce a powerful and simple ("Naive") assumption: **"All features** $x_i$ are independent given class $C_k$."
+
+$$P(\mathbf{x}|C_k) = P(x_1, x_2, \dots, x_n | C_k) \approx \prod_{i=1}^{n} P(x_i|C_k)$$
+
+### 4.3 Final Model and Insight
+
+Finally, the Naive Bayes classifier predicts the class using the following equation:
+
+$$\hat{y} = \underset{k \in \{1, \dots, K\}}{\text{argmax}} \left( P(C_k) \prod_{i=1}^{n} P(x_i|C_k) \right)$$
+
+::: {.callout-tip title="Application"}
+This is widely used in text classification (e.g., spam filtering). Even though the independence assumption (e.g., "words appear independently") is rarely true in reality, Naive Bayes often performs surprisingly well because we only need the correct **rank** of probabilities, not their exact values.
+:::

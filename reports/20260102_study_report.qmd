@@ -2,7 +2,9 @@
 title: "pLSA and Review Mining"
 subtitle: "Service Opportunity Discovery in Meal Kit Services"
 author: "Uhjin Kim"
-date: "2026-01-03"
+date: "2026-01-02"
+categories: [Research Archive, Machine Learning]
+image: false
 format:
   html:
     toc: true

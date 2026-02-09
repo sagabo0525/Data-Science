@@ -1,0 +1,185 @@
+---
+title: "Weekly Learning Report: Dimensionality Reduction & Matrix Factorization"
+subtitle: "From Geometric Intuition to Mathematical Rigor"
+author: "Uhjin Kim"
+date: "2026-01-22"
+categories: [Linear Algebra, Machine Learning]
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    mainfont: "Arial"
+editor: visual
+---
+
+## 1. Overview
+
+This report explores the mathematical foundations and geometric interpretations of Dimensionality Reduction and Matrix Factorization. We integrate two perspectives:
+
+1.  **Geometric Intuition:** Understanding operations as rotations, stretchings, and projections.
+2.  **Algebraic Rigor:** Deriving solutions using Eigendecomposition and Optimization techniques.
+
+Our focus is on the two pillars of linear algebra in Data Science: **PCA (Principal Component Analysis)** and **SVD (Singular Value Decomposition)**.
+
+------------------------------------------------------------------------
+
+## 2. Eigendecomposition: The Mathematical Foundation
+
+Before diving into PCA, we must understand the engine that powers it: Eigendecomposition.
+
+### 2.1 Concept and Definition
+
+Consider a square matrix $A \in \mathbb{R}^{n \times n}$. Most vectors change direction when multiplied by $A$. However, there are special vectors that do not change direction, but only scale in length.
+
+An eigenvalue–eigenvector pair $(\lambda, x)$ satisfies:
+
+$$Ax = \lambda x, \quad x \neq 0$$
+
+-   **Eigenvector (**$x$): The invariant direction or "axis" of the transformation.
+-   **Eigenvalue (**$\lambda$): The scaling factor along that axis.
+
+If $A$ has $n$ linearly independent eigenvectors, we can decompose it as:
+
+$$A = V \Lambda V^{-1}$$
+
+where $V$ is the matrix of eigenvectors and $\Lambda$ is the diagonal matrix of eigenvalues.
+
+### 2.2 Why is this Useful? (Algebraic Power)
+
+Eigendecomposition transforms complex matrix operations into simple scalar operations on the diagonal elements.
+
+-   **Powers of a Matrix (**$A^k$): Instead of multiplying matrices $k$ times, we simply power the eigenvalues. $$A^k = V \Lambda^k V^{-1}$$
+
+-   **Inverse (**$A^{-1}$): $$A^{-1} = V \Lambda^{-1} V^{-1}$$
+
+-   **Determinant:** The determinant is the product of all eigenvalues (representing the total volume scaling factor). $$\det(A) = \prod_{i=1}^{n} \lambda_i$$
+
+### 2.3 The Special Case: Symmetric Matrices
+
+For **Symmetric Matrices** ($A = A^T$), such as the Covariance Matrix in PCA, the properties are even stronger (**Spectral Theorem**):
+
+1.  All eigenvalues are Real.
+2.  Eigenvectors corresponding to distinct eigenvalues are **Orthogonal**.
+3.  We can form an Orthonormal Basis $Q$.
+
+$$A = Q \Lambda Q^T = \sum_{i=1}^{n} \lambda_i q_i q_i^T$$
+
+::: callout-note
+**Interpretation:** A symmetric matrix can be viewed as a sum of rank-1 projections. It projects a vector onto an orthogonal axis $q_i$, scales it by $\lambda_i$, and sums the results.
+:::
+
+### 2.4 Decomposing a Vector Using Eigenvectors
+
+A powerful application of eigendecomposition is representing any vector $x$ in the coordinate system defined by the eigenvectors. Since the eigenvectors $q_1, \dots, q_n$ of a symmetric matrix form an orthonormal basis, any vector $x$ can be written as:
+
+$$x = c_1 q_1 + c_2 q_2 + \dots + c_n q_n$$
+
+How do we find the coefficients $c_k$? Using the property of orthonormality ($q_i^T q_j = \delta_{ij}$), we multiply by $q_k^T$:
+
+$$q_k^T x = c_k$$
+
+Thus, the coefficient $c_k$ is simply the projection (inner product) of $x$ onto the eigenvector $q_k$. This is the fundamental principle behind PCA projection.
+
+------------------------------------------------------------------------
+
+## 3. PCA (Principal Component Analysis)
+
+PCA projects high-dimensional data onto a lower-dimensional subspace. But how do we choose the best subspace? We have two equivalent interpretations.
+
+### 3.1 Geometric Intuition: The Pythagorean Theorem
+
+Consider a data point $x$ in 2D space. We want to project it onto a 1D line passing through the origin. For any data point, the relationship between the original vector, its projection, and the error is governed by the Pythagorean Theorem:
+
+$$\text{Dist}(x, \text{origin})^2 = \text{Dist}(\text{proj}, \text{origin})^2 + \text{Dist}(x, \text{proj})^2$$
+
+-   **Hypotenuse (**$\text{Dist}(x, \text{origin})^2$): The inherent energy of the data point. This is **Fixed**.
+-   **Base (**$\text{Dist}(\text{proj}, \text{origin})^2$): The Variance retained (Information).
+-   **Height (**$\text{Dist}(x, \text{proj})^2$): The Reconstruction Error (Loss).
+
+Since $\text{Hypotenuse} = \text{Base} + \text{Height}$ is constant:
+
+$$\textbf{Maximizing Variance (Base)} \iff \textbf{Minimizing Error (Height)}$$
+
+### 3.2 Mathematical Derivation: Optimization
+
+Let's prove this mathematically. We seek a unit direction vector $w$ ($||w||=1$) that maximizes the variance of the projected data $Xw$.
+
+**Step 1: Define Objective** Given centered data $X$, the covariance matrix is $C = \frac{1}{n}X^T X$. The variance along direction $w$ is: $$\text{Var}(w) = w^T C w$$
+
+**Step 2: Define Constraint** The vector must have unit length: $$w^T w = 1$$
+
+**Step 3: Lagrange Multipliers** Construct the Lagrangian function $L$: $$L(w, \lambda) = w^T C w - \lambda (w^T w - 1)$$
+
+**Step 4: Solve** Take the derivative w.r.t $w$ and set to 0: $$\frac{\partial L}{\partial w} = 2Cw - 2\lambda w = 0 \implies Cw = \lambda w$$
+
+::: {.callout-tip title="Key Conclusion"}
+The direction $w$ that maximizes variance is exactly the **Eigenvector** of the Covariance Matrix $C$. The variance value itself is the corresponding **Eigenvalue** $\lambda$.
+:::
+
+### 3.3 The Algorithm
+
+1.  **Center the data:** Subtract the mean from each column.
+2.  **Compute Covariance Matrix:** $\Sigma = \frac{1}{n-1} X^T X$.
+3.  **Eigen-decomposition:** Find eigenvalues and eigenvectors of $\Sigma$.
+4.  **Sort & Select:** Sort $\lambda_1 \ge \lambda_2 \dots$ and pick the top $k$ eigenvectors.
+5.  **Project:** $X_{new} = X W_k$.
+
+------------------------------------------------------------------------
+
+## 4. SVD (Singular Value Decomposition)
+
+While Eigendecomposition is limited to square matrices, SVD is the fundamental factorization for any rectangular matrix $A \in \mathbb{R}^{m \times n}$.
+
+### 4.1 Geometric Essence: "Circles become Ellipses"
+
+A linear transformation $A$ deforms space. If we transform a unit circle (or hypersphere), it is stretched and rotated into a hyper-ellipse. SVD decomposes this transformation into three simple, intuitive steps:
+
+$$A = U \Sigma V^T$$
+
+| Component | Matrix Type | Geometric Action |
+|:-----------------------|:-----------------------|:-----------------------|
+| $V^T$ | Orthogonal Matrix | **Rotation:** Aligns the input basis to the principal axes of the transformation. |
+| $\Sigma$ | Diagonal Matrix | **Stretching:** Scales the axes by singular values $\sigma_i$. |
+| $U$ | Orthogonal Matrix | **Rotation:** Rotates the stretched ellipse to its final orientation in the output space. |
+
+### 4.2 Computational Strategy: The $A^T A$ Trick
+
+Direct calculation of SVD is often done via its relationship to Eigendecomposition.
+
+-   **Right Singular Vectors (**$V$): These are the eigenvectors of the symmetric matrix $A^T A$. $$A^T A = (V \Sigma^T U^T)^T (U \Sigma V^T) = V \Sigma^2 V^T$$ *Note: Columns of* $V$ correspond to the axes in the input space.
+
+-   **Left Singular Vectors (**$U$): These are the eigenvectors of the symmetric matrix $A A^T$. $$A A^T = (U \Sigma V^T)(U \Sigma V^T)^T = U \Sigma^2 U^T$$ *Note: Columns of* $U$ correspond to the axes in the output space.
+
+-   **Singular Values (**$\sigma$): These are the square roots of the eigenvalues of $A^T A$. $$\sigma_i = \sqrt{\lambda_i}$$
+
+### 4.3 SVD vs. Eigendecomposition
+
+| Feature | Eigendecomposition ($Ax = \lambda x$) | SVD ($Av = \sigma u$) |
+|:-----------------------|:-----------------------|:-----------------------|
+| **Scope** | Square matrices only. | Any matrix ($m \times n$). |
+| **Basis** | Input/Output basis are the same ($x$). | Input ($V$) and Output ($U$) bases can differ. |
+| **Relationship** | Finds axes that don't rotate. | Finds axes that map orthogonally to orthogonally. |
+
+### 4.4 Detailed Geometric Connection
+
+From the eigendecomposition of $M = A^T A = Q \Lambda Q^T$:
+
+1.  The **Eigenvectors** of $A^T A$ give us the directions in the input space that become the principal axes of the ellipse after transformation.
+2.  The **Eigenvalues** of $A^T A$ represent the squared lengths of those axes.
+
+Thus, SVD effectively sorts the "strength" of the transformation along different orthogonal directions.
+
+### 4.5 Application: Low-Rank Approximation
+
+SVD allows us to express a matrix $A$ as a sum of rank-1 matrices (images):
+
+$$A = \sum_{i=1}^{r} \sigma_i u_i v_i^T$$
+
+By keeping only the first $k$ largest singular values (truncating the sum), we obtain the optimal rank-$k$ approximation of the original matrix. This is the mathematical basis for:
+
+-   **Image Compression:** Storing only top $k$ components.
+-   **Denoising:** Removing small $\sigma_i$ (noise) to reveal the signal.
+-   **Recommender Systems:** Latent Semantic Analysis.

@@ -2,7 +2,7 @@
 title: "Weekly Learning Report: MCDM & Similarity Measures"
 author: "Uhjin Kim"
 date: "2026-01-15"
-categories: [Data Science, MCDM, Mathematics]
+categories: [Operations Research, Machine Learning]
 format:
   html:
     toc: true

@@ -10,7 +10,397 @@
 <atom:link href="https://sagabo0525.github.io/Data-Science/index.xml" rel="self" type="application/rss+xml"/>
 <description>산업공학 &amp; 데이터 사이언스 연구 기록</description>
 <generator>quarto-1.8.26</generator>
-<lastBuildDate>Wed, 14 Jan 2026 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 08 Feb 2026 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>Weekly Learning Report: Dimensionality Reduction &amp; Matrix Factorization</title>
+  <dc:creator>Uhjin Kim</dc:creator>
+  <link>https://sagabo0525.github.io/Data-Science/reports/20260122_study_report.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="overview" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="overview"><span class="header-section-number">1</span> 1. Overview</h2>
+<p>This report explores the mathematical foundations and geometric interpretations of Dimensionality Reduction and Matrix Factorization. We integrate two perspectives:</p>
+<ol type="1">
+<li><strong>Geometric Intuition:</strong> Understanding operations as rotations, stretchings, and projections.</li>
+<li><strong>Algebraic Rigor:</strong> Deriving solutions using Eigendecomposition and Optimization techniques.</li>
+</ol>
+<p>Our focus is on the two pillars of linear algebra in Data Science: <strong>PCA (Principal Component Analysis)</strong> and <strong>SVD (Singular Value Decomposition)</strong>.</p>
+<hr>
+</section>
+<section id="eigendecomposition-the-mathematical-foundation" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="eigendecomposition-the-mathematical-foundation"><span class="header-section-number">2</span> 2. Eigendecomposition: The Mathematical Foundation</h2>
+<p>Before diving into PCA, we must understand the engine that powers it: Eigendecomposition.</p>
+<section id="concept-and-definition" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="concept-and-definition"><span class="header-section-number">2.1</span> 2.1 Concept and Definition</h3>
+<p>Consider a square matrix <img src="https://latex.codecogs.com/png.latex?A%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%20n%7D">. Most vectors change direction when multiplied by <img src="https://latex.codecogs.com/png.latex?A">. However, there are special vectors that do not change direction, but only scale in length.</p>
+<p>An eigenvalue–eigenvector pair <img src="https://latex.codecogs.com/png.latex?(%5Clambda,%20x)"> satisfies:</p>
+<p><img src="https://latex.codecogs.com/png.latex?Ax%20=%20%5Clambda%20x,%20%5Cquad%20x%20%5Cneq%200"></p>
+<ul>
+<li><strong>Eigenvector (</strong><img src="https://latex.codecogs.com/png.latex?x">): The invariant direction or “axis” of the transformation.</li>
+<li><strong>Eigenvalue (</strong><img src="https://latex.codecogs.com/png.latex?%5Clambda">): The scaling factor along that axis.</li>
+</ul>
+<p>If <img src="https://latex.codecogs.com/png.latex?A"> has <img src="https://latex.codecogs.com/png.latex?n"> linearly independent eigenvectors, we can decompose it as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?A%20=%20V%20%5CLambda%20V%5E%7B-1%7D"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?V"> is the matrix of eigenvectors and <img src="https://latex.codecogs.com/png.latex?%5CLambda"> is the diagonal matrix of eigenvalues.</p>
+</section>
+<section id="why-is-this-useful-algebraic-power" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="why-is-this-useful-algebraic-power"><span class="header-section-number">2.2</span> 2.2 Why is this Useful? (Algebraic Power)</h3>
+<p>Eigendecomposition transforms complex matrix operations into simple scalar operations on the diagonal elements.</p>
+<ul>
+<li><p><strong>Powers of a Matrix (</strong><img src="https://latex.codecogs.com/png.latex?A%5Ek">): Instead of multiplying matrices <img src="https://latex.codecogs.com/png.latex?k"> times, we simply power the eigenvalues. <img src="https://latex.codecogs.com/png.latex?A%5Ek%20=%20V%20%5CLambda%5Ek%20V%5E%7B-1%7D"></p></li>
+<li><p><strong>Inverse (</strong><img src="https://latex.codecogs.com/png.latex?A%5E%7B-1%7D">): <img src="https://latex.codecogs.com/png.latex?A%5E%7B-1%7D%20=%20V%20%5CLambda%5E%7B-1%7D%20V%5E%7B-1%7D"></p></li>
+<li><p><strong>Determinant:</strong> The determinant is the product of all eigenvalues (representing the total volume scaling factor). <img src="https://latex.codecogs.com/png.latex?%5Cdet(A)%20=%20%5Cprod_%7Bi=1%7D%5E%7Bn%7D%20%5Clambda_i"></p></li>
+</ul>
+</section>
+<section id="the-special-case-symmetric-matrices" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="the-special-case-symmetric-matrices"><span class="header-section-number">2.3</span> 2.3 The Special Case: Symmetric Matrices</h3>
+<p>For <strong>Symmetric Matrices</strong> (<img src="https://latex.codecogs.com/png.latex?A%20=%20A%5ET">), such as the Covariance Matrix in PCA, the properties are even stronger (<strong>Spectral Theorem</strong>):</p>
+<ol type="1">
+<li>All eigenvalues are Real.</li>
+<li>Eigenvectors corresponding to distinct eigenvalues are <strong>Orthogonal</strong>.</li>
+<li>We can form an Orthonormal Basis <img src="https://latex.codecogs.com/png.latex?Q">.</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?A%20=%20Q%20%5CLambda%20Q%5ET%20=%20%5Csum_%7Bi=1%7D%5E%7Bn%7D%20%5Clambda_i%20q_i%20q_i%5ET"></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Interpretation:</strong> A symmetric matrix can be viewed as a sum of rank-1 projections. It projects a vector onto an orthogonal axis <img src="https://latex.codecogs.com/png.latex?q_i">, scales it by <img src="https://latex.codecogs.com/png.latex?%5Clambda_i">, and sums the results.</p>
+</div>
+</div>
+</section>
+<section id="decomposing-a-vector-using-eigenvectors" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="decomposing-a-vector-using-eigenvectors"><span class="header-section-number">2.4</span> 2.4 Decomposing a Vector Using Eigenvectors</h3>
+<p>A powerful application of eigendecomposition is representing any vector <img src="https://latex.codecogs.com/png.latex?x"> in the coordinate system defined by the eigenvectors. Since the eigenvectors <img src="https://latex.codecogs.com/png.latex?q_1,%20%5Cdots,%20q_n"> of a symmetric matrix form an orthonormal basis, any vector <img src="https://latex.codecogs.com/png.latex?x"> can be written as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?x%20=%20c_1%20q_1%20+%20c_2%20q_2%20+%20%5Cdots%20+%20c_n%20q_n"></p>
+<p>How do we find the coefficients <img src="https://latex.codecogs.com/png.latex?c_k">? Using the property of orthonormality (<img src="https://latex.codecogs.com/png.latex?q_i%5ET%20q_j%20=%20%5Cdelta_%7Bij%7D">), we multiply by <img src="https://latex.codecogs.com/png.latex?q_k%5ET">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?q_k%5ET%20x%20=%20c_k"></p>
+<p>Thus, the coefficient <img src="https://latex.codecogs.com/png.latex?c_k"> is simply the projection (inner product) of <img src="https://latex.codecogs.com/png.latex?x"> onto the eigenvector <img src="https://latex.codecogs.com/png.latex?q_k">. This is the fundamental principle behind PCA projection.</p>
+<hr>
+</section>
+</section>
+<section id="pca-principal-component-analysis" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="pca-principal-component-analysis"><span class="header-section-number">3</span> 3. PCA (Principal Component Analysis)</h2>
+<p>PCA projects high-dimensional data onto a lower-dimensional subspace. But how do we choose the best subspace? We have two equivalent interpretations.</p>
+<section id="geometric-intuition-the-pythagorean-theorem" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="geometric-intuition-the-pythagorean-theorem"><span class="header-section-number">3.1</span> 3.1 Geometric Intuition: The Pythagorean Theorem</h3>
+<p>Consider a data point <img src="https://latex.codecogs.com/png.latex?x"> in 2D space. We want to project it onto a 1D line passing through the origin. For any data point, the relationship between the original vector, its projection, and the error is governed by the Pythagorean Theorem:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BDist%7D(x,%20%5Ctext%7Borigin%7D)%5E2%20=%20%5Ctext%7BDist%7D(%5Ctext%7Bproj%7D,%20%5Ctext%7Borigin%7D)%5E2%20+%20%5Ctext%7BDist%7D(x,%20%5Ctext%7Bproj%7D)%5E2"></p>
+<ul>
+<li><strong>Hypotenuse (</strong><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BDist%7D(x,%20%5Ctext%7Borigin%7D)%5E2">): The inherent energy of the data point. This is <strong>Fixed</strong>.</li>
+<li><strong>Base (</strong><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BDist%7D(%5Ctext%7Bproj%7D,%20%5Ctext%7Borigin%7D)%5E2">): The Variance retained (Information).</li>
+<li><strong>Height (</strong><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BDist%7D(x,%20%5Ctext%7Bproj%7D)%5E2">): The Reconstruction Error (Loss).</li>
+</ul>
+<p>Since <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BHypotenuse%7D%20=%20%5Ctext%7BBase%7D%20+%20%5Ctext%7BHeight%7D"> is constant:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctextbf%7BMaximizing%20Variance%20(Base)%7D%20%5Ciff%20%5Ctextbf%7BMinimizing%20Error%20(Height)%7D"></p>
+</section>
+<section id="mathematical-derivation-optimization" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="mathematical-derivation-optimization"><span class="header-section-number">3.2</span> 3.2 Mathematical Derivation: Optimization</h3>
+<p>Let’s prove this mathematically. We seek a unit direction vector <img src="https://latex.codecogs.com/png.latex?w"> (<img src="https://latex.codecogs.com/png.latex?%7C%7Cw%7C%7C=1">) that maximizes the variance of the projected data <img src="https://latex.codecogs.com/png.latex?Xw">.</p>
+<p><strong>Step 1: Define Objective</strong> Given centered data <img src="https://latex.codecogs.com/png.latex?X">, the covariance matrix is <img src="https://latex.codecogs.com/png.latex?C%20=%20%5Cfrac%7B1%7D%7Bn%7DX%5ET%20X">. The variance along direction <img src="https://latex.codecogs.com/png.latex?w"> is: <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(w)%20=%20w%5ET%20C%20w"></p>
+<p><strong>Step 2: Define Constraint</strong> The vector must have unit length: <img src="https://latex.codecogs.com/png.latex?w%5ET%20w%20=%201"></p>
+<p><strong>Step 3: Lagrange Multipliers</strong> Construct the Lagrangian function <img src="https://latex.codecogs.com/png.latex?L">: <img src="https://latex.codecogs.com/png.latex?L(w,%20%5Clambda)%20=%20w%5ET%20C%20w%20-%20%5Clambda%20(w%5ET%20w%20-%201)"></p>
+<p><strong>Step 4: Solve</strong> Take the derivative w.r.t <img src="https://latex.codecogs.com/png.latex?w"> and set to 0: <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B%5Cpartial%20L%7D%7B%5Cpartial%20w%7D%20=%202Cw%20-%202%5Clambda%20w%20=%200%20%5Cimplies%20Cw%20=%20%5Clambda%20w"></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Key Conclusion">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Key Conclusion
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The direction <img src="https://latex.codecogs.com/png.latex?w"> that maximizes variance is exactly the <strong>Eigenvector</strong> of the Covariance Matrix <img src="https://latex.codecogs.com/png.latex?C">. The variance value itself is the corresponding <strong>Eigenvalue</strong> <img src="https://latex.codecogs.com/png.latex?%5Clambda">.</p>
+</div>
+</div>
+</section>
+<section id="the-algorithm" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="the-algorithm"><span class="header-section-number">3.3</span> 3.3 The Algorithm</h3>
+<ol type="1">
+<li><strong>Center the data:</strong> Subtract the mean from each column.</li>
+<li><strong>Compute Covariance Matrix:</strong> <img src="https://latex.codecogs.com/png.latex?%5CSigma%20=%20%5Cfrac%7B1%7D%7Bn-1%7D%20X%5ET%20X">.</li>
+<li><strong>Eigen-decomposition:</strong> Find eigenvalues and eigenvectors of <img src="https://latex.codecogs.com/png.latex?%5CSigma">.</li>
+<li><strong>Sort &amp; Select:</strong> Sort <img src="https://latex.codecogs.com/png.latex?%5Clambda_1%20%5Cge%20%5Clambda_2%20%5Cdots"> and pick the top <img src="https://latex.codecogs.com/png.latex?k"> eigenvectors.</li>
+<li><strong>Project:</strong> <img src="https://latex.codecogs.com/png.latex?X_%7Bnew%7D%20=%20X%20W_k">.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="svd-singular-value-decomposition" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="svd-singular-value-decomposition"><span class="header-section-number">4</span> 4. SVD (Singular Value Decomposition)</h2>
+<p>While Eigendecomposition is limited to square matrices, SVD is the fundamental factorization for any rectangular matrix <img src="https://latex.codecogs.com/png.latex?A%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bm%20%5Ctimes%20n%7D">.</p>
+<section id="geometric-essence-circles-become-ellipses" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="geometric-essence-circles-become-ellipses"><span class="header-section-number">4.1</span> 4.1 Geometric Essence: “Circles become Ellipses”</h3>
+<p>A linear transformation <img src="https://latex.codecogs.com/png.latex?A"> deforms space. If we transform a unit circle (or hypersphere), it is stretched and rotated into a hyper-ellipse. SVD decomposes this transformation into three simple, intuitive steps:</p>
+<p><img src="https://latex.codecogs.com/png.latex?A%20=%20U%20%5CSigma%20V%5ET"></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Component</th>
+<th style="text-align: left;">Matrix Type</th>
+<th style="text-align: left;">Geometric Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?V%5ET"></td>
+<td style="text-align: left;">Orthogonal Matrix</td>
+<td style="text-align: left;"><strong>Rotation:</strong> Aligns the input basis to the principal axes of the transformation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5CSigma"></td>
+<td style="text-align: left;">Diagonal Matrix</td>
+<td style="text-align: left;"><strong>Stretching:</strong> Scales the axes by singular values <img src="https://latex.codecogs.com/png.latex?%5Csigma_i">.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?U"></td>
+<td style="text-align: left;">Orthogonal Matrix</td>
+<td style="text-align: left;"><strong>Rotation:</strong> Rotates the stretched ellipse to its final orientation in the output space.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="computational-strategy-the-at-a-trick" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="computational-strategy-the-at-a-trick"><span class="header-section-number">4.2</span> 4.2 Computational Strategy: The <img src="https://latex.codecogs.com/png.latex?A%5ET%20A"> Trick</h3>
+<p>Direct calculation of SVD is often done via its relationship to Eigendecomposition.</p>
+<ul>
+<li><p><strong>Right Singular Vectors (</strong><img src="https://latex.codecogs.com/png.latex?V">): These are the eigenvectors of the symmetric matrix <img src="https://latex.codecogs.com/png.latex?A%5ET%20A">. <img src="https://latex.codecogs.com/png.latex?A%5ET%20A%20=%20(V%20%5CSigma%5ET%20U%5ET)%5ET%20(U%20%5CSigma%20V%5ET)%20=%20V%20%5CSigma%5E2%20V%5ET"> <em>Note: Columns of</em> <img src="https://latex.codecogs.com/png.latex?V"> correspond to the axes in the input space.</p></li>
+<li><p><strong>Left Singular Vectors (</strong><img src="https://latex.codecogs.com/png.latex?U">): These are the eigenvectors of the symmetric matrix <img src="https://latex.codecogs.com/png.latex?A%20A%5ET">. <img src="https://latex.codecogs.com/png.latex?A%20A%5ET%20=%20(U%20%5CSigma%20V%5ET)(U%20%5CSigma%20V%5ET)%5ET%20=%20U%20%5CSigma%5E2%20U%5ET"> <em>Note: Columns of</em> <img src="https://latex.codecogs.com/png.latex?U"> correspond to the axes in the output space.</p></li>
+<li><p><strong>Singular Values (</strong><img src="https://latex.codecogs.com/png.latex?%5Csigma">): These are the square roots of the eigenvalues of <img src="https://latex.codecogs.com/png.latex?A%5ET%20A">. <img src="https://latex.codecogs.com/png.latex?%5Csigma_i%20=%20%5Csqrt%7B%5Clambda_i%7D"></p></li>
+</ul>
+</section>
+<section id="svd-vs.-eigendecomposition" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="svd-vs.-eigendecomposition"><span class="header-section-number">4.3</span> 4.3 SVD vs.&nbsp;Eigendecomposition</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Eigendecomposition (<img src="https://latex.codecogs.com/png.latex?Ax%20=%20%5Clambda%20x">)</th>
+<th style="text-align: left;">SVD (<img src="https://latex.codecogs.com/png.latex?Av%20=%20%5Csigma%20u">)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Scope</strong></td>
+<td style="text-align: left;">Square matrices only.</td>
+<td style="text-align: left;">Any matrix (<img src="https://latex.codecogs.com/png.latex?m%20%5Ctimes%20n">).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Basis</strong></td>
+<td style="text-align: left;">Input/Output basis are the same (<img src="https://latex.codecogs.com/png.latex?x">).</td>
+<td style="text-align: left;">Input (<img src="https://latex.codecogs.com/png.latex?V">) and Output (<img src="https://latex.codecogs.com/png.latex?U">) bases can differ.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Relationship</strong></td>
+<td style="text-align: left;">Finds axes that don’t rotate.</td>
+<td style="text-align: left;">Finds axes that map orthogonally to orthogonally.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="detailed-geometric-connection" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="detailed-geometric-connection"><span class="header-section-number">4.4</span> 4.4 Detailed Geometric Connection</h3>
+<p>From the eigendecomposition of <img src="https://latex.codecogs.com/png.latex?M%20=%20A%5ET%20A%20=%20Q%20%5CLambda%20Q%5ET">:</p>
+<ol type="1">
+<li>The <strong>Eigenvectors</strong> of <img src="https://latex.codecogs.com/png.latex?A%5ET%20A"> give us the directions in the input space that become the principal axes of the ellipse after transformation.</li>
+<li>The <strong>Eigenvalues</strong> of <img src="https://latex.codecogs.com/png.latex?A%5ET%20A"> represent the squared lengths of those axes.</li>
+</ol>
+<p>Thus, SVD effectively sorts the “strength” of the transformation along different orthogonal directions.</p>
+</section>
+<section id="application-low-rank-approximation" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="application-low-rank-approximation"><span class="header-section-number">4.5</span> 4.5 Application: Low-Rank Approximation</h3>
+<p>SVD allows us to express a matrix <img src="https://latex.codecogs.com/png.latex?A"> as a sum of rank-1 matrices (images):</p>
+<p><img src="https://latex.codecogs.com/png.latex?A%20=%20%5Csum_%7Bi=1%7D%5E%7Br%7D%20%5Csigma_i%20u_i%20v_i%5ET"></p>
+<p>By keeping only the first <img src="https://latex.codecogs.com/png.latex?k"> largest singular values (truncating the sum), we obtain the optimal rank-<img src="https://latex.codecogs.com/png.latex?k"> approximation of the original matrix. This is the mathematical basis for:</p>
+<ul>
+<li><strong>Image Compression:</strong> Storing only top <img src="https://latex.codecogs.com/png.latex?k"> components.</li>
+<li><strong>Denoising:</strong> Removing small <img src="https://latex.codecogs.com/png.latex?%5Csigma_i"> (noise) to reveal the signal.</li>
+<li><strong>Recommender Systems:</strong> Latent Semantic Analysis.</li>
+</ul>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>Linear Algebra</category>
+  <category>Machine Learning</category>
+  <category>PCA</category>
+  <category>SVD</category>
+  <guid>https://sagabo0525.github.io/Data-Science/reports/20260122_study_report.html</guid>
+  <pubDate>Sun, 08 Feb 2026 15:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Weekly Learning Report: Probabilistic Classifiers &amp; Optimization</title>
+  <dc:creator>Uhjin Kim</dc:creator>
+  <link>https://sagabo0525.github.io/Data-Science/reports/20260206_study_report.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="overview" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="overview"><span class="header-section-number">1</span> 1. Overview</h2>
+<p>The core focus of this week’s learning is understanding the mathematical foundations of <strong>Probabilistic Classification</strong>. Moving beyond simply drawing lines in space to separate data (Geometric Approach), we cover two approaches to modeling the probability that data belongs to a specific class:</p>
+<ul>
+<li><strong>Discriminative Model (Logistic Regression):</strong> Directly models the probability <img src="https://latex.codecogs.com/png.latex?P(Y%7CX)"> of class <img src="https://latex.codecogs.com/png.latex?Y"> given input <img src="https://latex.codecogs.com/png.latex?X">. The key process is mapping the result of a linear combination to a probability range.</li>
+<li><strong>Generative Model (Naive Bayes):</strong> Models the distribution of data per class <img src="https://latex.codecogs.com/png.latex?P(X%7CY)"> and the prior probability <img src="https://latex.codecogs.com/png.latex?P(Y)">, then infers the class inversely using Bayes’ Theorem.</li>
+</ul>
+<p>This report integrates the derivation of Logistic Regression based on Odds, Maximum Likelihood Estimation (MLE) for training, and the mathematical proofs and intuition behind the independence assumption in Naive Bayes.</p>
+<hr>
+</section>
+<section id="logistic-regression-the-discriminative-approach" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="logistic-regression-the-discriminative-approach"><span class="header-section-number">2</span> 2. Logistic Regression: The Discriminative Approach</h2>
+<p>Logistic Regression is a regression model designed to predict the probability of an event occurrence when the dependent variable is Categorical.</p>
+<section id="the-limits-of-linear-regression-range-mismatch" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="the-limits-of-linear-regression-range-mismatch"><span class="header-section-number">2.1</span> 2.1 The Limits of Linear Regression (Range Mismatch)</h3>
+<p>Suppose we predict an event using a matrix of vectors <img src="https://latex.codecogs.com/png.latex?X"> and a weight vector <img src="https://latex.codecogs.com/png.latex?%5Cvec%7B%5Cbeta%7D">. The standard linear regression formula (Linear Combination) is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?z%20=%20%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%20=%20%5Cbeta_0%20+%20%5Cbeta_1%20x_1%20+%20%5Ccdots%20+%20%5Cbeta_n%20x_n"></p>
+<p>Here, a fatal <strong>Range Mismatch</strong> occurs:</p>
+<ul>
+<li><strong>LHS (Probability):</strong> The probability we want to know, <img src="https://latex.codecogs.com/png.latex?P(Y=1%7CX=%5Cvec%7Bx%7D)">, has a range of <img src="https://latex.codecogs.com/png.latex?%5B0,%201%5D">.</li>
+<li><strong>RHS (Linear Eq):</strong> The result of <img src="https://latex.codecogs.com/png.latex?%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D"> has a range of <img src="https://latex.codecogs.com/png.latex?(-%5Cinfty,%20%5Cinfty)">.</li>
+</ul>
+<p>Therefore, a linear equation cannot be used directly as a probability; we need a mediator to bridge this gap.</p>
+</section>
+<section id="derivation-from-odds-from-odds-to-logit" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="derivation-from-odds-from-odds-to-logit"><span class="header-section-number">2.2</span> 2.2 Derivation from Odds (From Odds to Logit)</h3>
+<p>To resolve this mismatch, we introduce the concept of <strong>Odds</strong> and derive the model in steps.</p>
+<p><strong>Step 1: Odds</strong> Convert probability <img src="https://latex.codecogs.com/png.latex?P"> into the “ratio of success probability to failure probability.” As probability increases from <img src="https://latex.codecogs.com/png.latex?0"> to <img src="https://latex.codecogs.com/png.latex?1">, Odds expand from <img src="https://latex.codecogs.com/png.latex?0"> to <img src="https://latex.codecogs.com/png.latex?%5Cinfty">. <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BOdds%7D%20=%20%5Cfrac%7BP(Y=1%7CX=%5Cvec%7Bx%7D)%7D%7B1%20-%20P(Y=1%7CX=%5Cvec%7Bx%7D)%7D%20%5Cin%20%5B0,%20%5Cinfty)"></p>
+<p><strong>Step 2: Logit (Log-Odds)</strong> By taking the natural logarithm of Odds, the range expands to <img src="https://latex.codecogs.com/png.latex?(-%5Cinfty,%20%5Cinfty)">, matching the range of the linear equation <img src="https://latex.codecogs.com/png.latex?%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D">. This is called the <strong>Logit Transform</strong>. <img src="https://latex.codecogs.com/png.latex?%5Clog(%5Ctext%7BOdds%7D)%20=%20%5Clog%5Cleft(%5Cfrac%7BP%7D%7B1%20-%20P%7D%5Cright)%20=%20%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D"></p>
+<p><strong>Step 3: Sigmoid Function (Solving for Probability)</strong> Rearranging the equation above for <img src="https://latex.codecogs.com/png.latex?P">, we obtain the activation function (Sigmoid) that converts the linear combination result <img src="https://latex.codecogs.com/png.latex?z"> into a probability.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7BP%7D%7B1-P%7D%20=%20e%5E%7B%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%7D%20%5Cimplies%20P(1%20+%20e%5E%7B%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%7D)%20=%20e%5E%7B%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctherefore%20P(Y=1%7CX=%5Cvec%7Bx%7D)%20=%20%5Cfrac%7Be%5E%7B%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%7D%7D%7B1%20+%20e%5E%7B%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%7D%7D%20=%20%5Cfrac%7B1%7D%7B1%20+%20e%5E%7B-%5Cvec%7B%5Cbeta%7D%5ET%20%5Cvec%7Bx%7D%7D%7D"></p>
+<p>[Image of sigmoid function curve]</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Insight:</strong> Logistic regression never abandoned linearity. It combines the simplicity of linear models with the flexibility of probabilistic models through the assumption that <strong>“the Log-Odds of the probability are linear.”</strong></p>
+</div>
+</div>
+</section>
+<section id="multinomial-logistic-regression-multi-class-extension" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="multinomial-logistic-regression-multi-class-extension"><span class="header-section-number">2.3</span> 2.3 Multinomial Logistic Regression (Multi-class Extension)</h3>
+<p>When the result is one of <img src="https://latex.codecogs.com/png.latex?K"> classes, we must extend binary classification. The core idea is **“Setting the last class** <img src="https://latex.codecogs.com/png.latex?K"> as the Pivot.”</p>
+<p>For each class <img src="https://latex.codecogs.com/png.latex?k=1,%20%5Cdots,%20K-1">, we model the log-odds relative to the pivot class <img src="https://latex.codecogs.com/png.latex?K"> linearly.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cln%20%5Cleft(%20%5Cfrac%7BP(Y=k)%7D%7BP(Y=K)%7D%20%5Cright)%20=%20%5Cbeta_k%20%5Ccdot%20X_i%20%5Cimplies%20P(Y=k)%20=%20P(Y=K)%20%5Ccdot%20e%5E%7B%5Cbeta_k%20%5Ccdot%20X_i%7D"></p>
+<p>Using the constraint that the sum of all probabilities must be 1 (<img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bj=1%7D%5EK%20P(Y=j)%20=%201">), we can find the denominator (Normalization term).</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(Y=K)%20+%20%5Csum_%7Bk=1%7D%5E%7BK-1%7D%20P(Y=K)e%5E%7B%5Cbeta_k%20%5Ccdot%20X_i%7D%20=%201"></p>
+<p>Rearranging this, the probability of the pivot class <img src="https://latex.codecogs.com/png.latex?K"> is: <img src="https://latex.codecogs.com/png.latex?P(Y_i%20=%20K)%20=%20%5Cfrac%7B1%7D%7B1%20+%20%5Csum_%7Bk=1%7D%5E%7BK-1%7D%20e%5E%7B%5Cbeta_k%20%5Ccdot%20X_i%7D%7D"></p>
+<p>The probability for the remaining classes <img src="https://latex.codecogs.com/png.latex?k"> is (Softmax form): <img src="https://latex.codecogs.com/png.latex?P(Y_i%20=%20k)%20=%20%5Cfrac%7Be%5E%7B%5Cbeta_k%20%5Ccdot%20X_i%7D%7D%7B1%20+%20%5Csum_%7Bj=1%7D%5E%7BK-1%7D%20e%5E%7B%5Cbeta_j%20%5Ccdot%20X_i%7D%7D"></p>
+<hr>
+</section>
+</section>
+<section id="optimization-mle-loss-function" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="optimization-mle-loss-function"><span class="header-section-number">3</span> 3. Optimization: MLE &amp; Loss Function</h2>
+<p>Now that the model form (<img src="https://latex.codecogs.com/png.latex?P(x)">) is defined, we must find the optimal parameters <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> (i.e., <img src="https://latex.codecogs.com/png.latex?%5Cvec%7B%5Cbeta%7D">). We examine how <strong>Maximum Likelihood Estimation (MLE)</strong> connects to the <strong>Loss Function</strong>.</p>
+<section id="likelihood-function" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="likelihood-function"><span class="header-section-number">3.1</span> 3.1 Likelihood Function</h3>
+<p>Given observed data <img src="https://latex.codecogs.com/png.latex?x%20=%20(x_1,%20%5Cdots,%20x_n)">, the Likelihood is the joint probability of observing this data viewed as a function of the parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta">. Assuming independent and identically distributed (i.i.d) data, it is expressed as a product.</p>
+<p><img src="https://latex.codecogs.com/png.latex?L(%5Ctheta%7Cx)%20=%20P(x%7C%5Ctheta)%20=%20%5Cprod_%7Bk=1%7D%5E%7Bn%7D%20P(x_k%7C%5Ctheta)"></p>
+</section>
+<section id="log-likelihood" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="log-likelihood"><span class="header-section-number">3.2</span> 3.2 Log-Likelihood</h3>
+<p>As data increases, the product of probabilities tends to zero (Underflow) and is complex to differentiate. Therefore, we take the logarithm to convert the product into a sum. Since the log function is monotonically increasing, the location of the maximum does not change.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BL%7D(%5Ctheta%7Cx)%20=%20%5Clog%20P(x%7C%5Ctheta)%20=%20%5Csum_%7Bk=1%7D%5E%7Bn%7D%20%5Clog%20P(x_k%7C%5Ctheta)"></p>
+<p>To find the optimal solution, we find the point where the partial derivative is 0.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20%5Ctheta%7D%20%5Cmathcal%7BL%7D(%5Ctheta%7Cx)%20=%20%5Csum_%7Bk=1%7D%5E%7Bn%7D%20%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20%5Ctheta%7D%20%5Clog%20P(x_k%7C%5Ctheta)%20=%200"></p>
+</section>
+<section id="from-mle-to-loss-function-equivalence-of-minimizing-loss-and-mle" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="from-mle-to-loss-function-equivalence-of-minimizing-loss-and-mle"><span class="header-section-number">3.3</span> 3.3 From MLE to Loss Function (Equivalence of Minimizing Loss and MLE)</h3>
+<p>In machine learning, we typically solve “Loss Minimization” problems rather than “Maximization” problems. Consider a binary classification (Bernoulli distribution) scenario. With actual value <img src="https://latex.codecogs.com/png.latex?y%20%5Cin%20%5C%7B0,%201%5C%7D"> and predicted value <img src="https://latex.codecogs.com/png.latex?p">, the likelihood function is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(y%7Cx)%20=%20p%5Ey%20(1-p)%5E%7B1-y%7D"></p>
+<p>Taking the negative logarithm (<img src="https://latex.codecogs.com/png.latex?-%5Clog">) of this yields the familiar <strong>Binary Cross-Entropy Loss</strong>.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BNLL%7D%20=%20-%5Clog(L)%20=%20-%5Csum_%7Bi=1%7D%5En%20%5Cleft(%20y_i%20%5Clog%20p_i%20+%20(1%20-%20y_i)%20%5Clog(1%20-%20p_i)%20%5Cright)"></p>
+<p>Viewed as a loss function for an individual data point: <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bloss%7D%20=%20%5Cbegin%7Bcases%7D%20-%5Clog%20p%20&amp;%20%5Ctext%7Bif%20%7D%20y%20=%201%20%5C%5C%20-%5Clog(1%20-%20p)%20&amp;%20%5Ctext%7Bif%20%7D%20y%20=%200%20%5Cend%7Bcases%7D"></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Conclusion">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Conclusion
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>“Maximizing Likelihood”</strong> is mathematically identical to <strong>“Minimizing the information difference (Cross-Entropy) between the data and the model.”</strong></p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="naive-bayes-classifier-the-generative-approach" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="naive-bayes-classifier-the-generative-approach"><span class="header-section-number">4</span> 4. Naive Bayes Classifier: The Generative Approach</h2>
+<p>Naive Bayes views input data as a vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bx%7D%20=%20(x_1,%20x_2,%20%5Cdots,%20x_n)"> and selects the class <img src="https://latex.codecogs.com/png.latex?C_k"> with the highest probability using Bayes’ Theorem.</p>
+<section id="bayes-theorem-decision-rule" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="bayes-theorem-decision-rule"><span class="header-section-number">4.1</span> 4.1 Bayes Theorem &amp; Decision Rule</h3>
+<p>We want to find the Posterior probability <img src="https://latex.codecogs.com/png.latex?P(C_k%7C%5Cmathbf%7Bx%7D)">.</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(C_k%7C%5Cmathbf%7Bx%7D)%20=%20%5Cfrac%7BP(C_k)P(%5Cmathbf%7Bx%7D%7CC_k)%7D%7BP(%5Cmathbf%7Bx%7D)%7D%20=%20%5Cfrac%7B%5Ctext%7BPrior%7D%20%5Ctimes%20%5Ctext%7BLikelihood%7D%7D%7B%5Ctext%7BEvidence%7D%7D"></p>
+<p>Here, the denominator, Evidence <img src="https://latex.codecogs.com/png.latex?P(%5Cmathbf%7Bx%7D)">, is a constant regardless of which class is selected, so it can be ignored (it does not affect the comparison of conditional probabilities).</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7By%7D%20=%20%5Cunderset%7Bk%7D%7B%5Ctext%7Bargmax%7D%7D%20%5Cleft(%20P(C_k)%20P(%5Cmathbf%7Bx%7D%7CC_k)%20%5Cright)"></p>
+</section>
+<section id="the-naive-independence-assumption" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="the-naive-independence-assumption"><span class="header-section-number">4.2</span> 4.2 The “Naive” Independence Assumption</h3>
+<p>The problem lies in computing the likelihood <img src="https://latex.codecogs.com/png.latex?P(%5Cmathbf%7Bx%7D%7CC_k)">. As features increase, estimating the joint probability distribution becomes nearly impossible. Here, we introduce a powerful and simple (“Naive”) assumption: **“All features** <img src="https://latex.codecogs.com/png.latex?x_i"> are independent given class <img src="https://latex.codecogs.com/png.latex?C_k">.”</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Cmathbf%7Bx%7D%7CC_k)%20=%20P(x_1,%20x_2,%20%5Cdots,%20x_n%20%7C%20C_k)%20%5Capprox%20%5Cprod_%7Bi=1%7D%5E%7Bn%7D%20P(x_i%7CC_k)"></p>
+</section>
+<section id="final-model-and-insight" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="final-model-and-insight"><span class="header-section-number">4.3</span> 4.3 Final Model and Insight</h3>
+<p>Finally, the Naive Bayes classifier predicts the class using the following equation:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7By%7D%20=%20%5Cunderset%7Bk%20%5Cin%20%5C%7B1,%20%5Cdots,%20K%5C%7D%7D%7B%5Ctext%7Bargmax%7D%7D%20%5Cleft(%20P(C_k)%20%5Cprod_%7Bi=1%7D%5E%7Bn%7D%20P(x_i%7CC_k)%20%5Cright)"></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Application">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Application
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is widely used in text classification (e.g., spam filtering). Even though the independence assumption (e.g., “words appear independently”) is rarely true in reality, Naive Bayes often performs surprisingly well because we only need the correct <strong>rank</strong> of probabilities, not their exact values.</p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>Machine Learning</category>
+  <category>Logistic Regression</category>
+  <category>MLE</category>
+  <category>Naive Bayes</category>
+  <guid>https://sagabo0525.github.io/Data-Science/reports/20260206_study_report.html</guid>
+  <pubDate>Sun, 01 Feb 2026 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Weekly Learning Report: MCDM &amp; Similarity Measures</title>
   <dc:creator>Uhjin Kim</dc:creator>
