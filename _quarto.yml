@@ -1,6 +1,6 @@
 project:
   type: website
-
+  output-dir: docs
 website:
   title: "Uhjin's Lab"
   description: "산업공학 & 데이터 사이언스 연구 기록"
